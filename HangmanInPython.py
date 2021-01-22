@@ -1,97 +1,109 @@
-#Hangman by: Visaagan Sivagnanasuntharam
+# Hangman by: Visaagan Sivagnanasuntharam
+# The graphics of the hangman are located in a different module
 
 
-#The graphics of the hangman are located in a different module
-import hangmanGraphics
 import random
-import time
+
+# Module where Hangman Graphics are help
+import hangmanGraphics
+pictures = hangmanGraphics.get
+
 
 def introduction():
     print("Hello, Welcome to Hangman by Visaagan!")
     username = input("What is your name? ")
     print(f"Hey {username}, Welcome to Hangman. We will being in 3 seconds.")
 
-def timer():
-    for i in (3,2,1):
-        print(i)
-        time.sleep(1)
-        i -= 1
 
-def playAgain(user_answer):
-    if user_answer == "y" or "Y" :
+def gameBoard(pictures, incorrectLetters, correctLetters, answer):
+    print()
+    print("   HANGMAN")
+    print(pictures[len(incorrectLetters)])
+    print()
+    print("Incorrect Letters:", end=" ")
+    for char in incorrectLetters:
+        print(char, end=" ")
+    print()
+    spaces = "_" * len(answer)
+
+    for n in range(len(answer)):
+        if answer[n] in correctLetters:
+            spaces = spaces[:n] + answer[n] + spaces[n+1:]
+
+    for char in spaces:
+        print(char, end=" ")
+    print()
+
+
+def userGuess(preconditionGuess):
+    while True:
+        guess = input("Guess the character or type the whole word to solve: ").lower().strip()
+        if guess == answer:
+            return answer
+        if len(guess) != 1:
+            print("You guessed the word incorrectly!\n")
+        elif guess in preconditionGuess:
+            print("You have already guessed that letter, please try again.\n")
+        elif guess not in "abcdefghijklmnopqrstuvwxyz":
+            print("You may only type in a letter.\n")
+        else:
+            return guess
+
+
+def playAgain():
+    userInput = input("Would you like to play again? (y/n): ").lower().strip()
+    if userInput == 'y':
         return True
     else:
         return False
 
-introduction()
-timer()
 
-words = ['The Office', 'Big Bang Theory', 'science', 'programming',
+words = ['science', 'programming',
          'python', 'mathematics', 'player', 'condition',
-         'reverse', 'water', 'board', 'geeks']
+         'reverse', 'water', 'recursive', 'objects', 'functions', 'dictionaries', 'tuples', 'hangman']
 
 
+# Preparing game for fresh start
+introduction()
+incorrectLetters = ""
+correctLetters = ""
 answer = random.choice(words)
+gameFinished = False
 
-print("Guess the word")
+while not gameFinished:
+    while True:
+        # Prints game-board after every guess
+        gameBoard(pictures, incorrectLetters, correctLetters, answer)
 
-guesses = ''
+        # Keeps track of user guesses
+        guess = userGuess(incorrectLetters + correctLetters)
 
-# any number of turns can be used here
-turns = 7
-graphics = 0
-
-while turns > 0:
-
-    # counts the number of times a user fails
-    failed = 0
-
-    # all characters from the input
-    # word taking one at a time.
-    for char in answer:
-
-        # comparing that character with
-        # the character in guesses
-        if char in guesses:
-            print(char)
-
+        if guess in answer:
+            correctLetters += guess
+            foundLetters = True
+            for n in range(len(answer)):
+                if answer[n] not in correctLetters:
+                    foundLetters = False
+                    break
+            if foundLetters:
+                print(f"You won! The word was {answer}!\n")
+                gameFinished = True
+                break
         else:
-            print("_")
+            incorrectLetters += guess
+            if len(incorrectLetters) > 5:
+                print(f"You have lost! The correct word was {answer}!\n")
+                gameFinished = True
+                break
 
-            # for every failure 1 will be
-            # incremented in failure
-            failed += 1
+    if gameFinished:
+        if playAgain():
+            # Reset game settings
+            correctLetters = ""
+            incorrectLetters = ""
+            answer = random.choice(words)
+            gameFinished = False
+        else:
+            print("Thank you for playing Hangman!")
+            gameFinished = True
 
-    if failed == 0:
-        # user will win the game if failure is 0
-        # and 'You Win' will be given as output
-        print("You Win")
-
-        # this print the correct word
-        print(f"The word is: {answer}")
-        break
-
-    # if user has input the wrong alphabet then
-    # it will ask user to enter another alphabet
-    guess = input("guess a character: ")
-
-    # every input character will be stored in guesses
-    guesses += guess
-
-    # check input with the character in word
-    if guess not in answer:
-
-        turns -= 1
-
-        # if the character doesn’t match the word
-        # then “Wrong” will be given as output
-        print("Wrong")
-        print(hangmanGraphics.get[graphics])
-        graphics += 1
-
-        # this will print the number of
-        # turns left for the user
-        print("You have", + turns, 'more guesses')
-
-        if turns == 0:
-            print("You Loose")
