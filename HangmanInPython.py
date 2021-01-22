@@ -4,7 +4,7 @@
 
 import random
 
-# Module where Hangman Graphics are help
+# Module where Hangman Graphics are held
 import hangmanGraphics
 pictures = hangmanGraphics.get
 
